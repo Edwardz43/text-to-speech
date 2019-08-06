@@ -3,24 +3,30 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strings"
 )
 
-func preProcess(filename string) {
-	data, err := ioutil.ReadFile(filename)
+const fileLimit = 4900
+
+func process(path, filename string) {
+	data, err := ioutil.ReadFile(path)
 	errHandle(err)
 
 	txt := string(data)
-	// log.Println(string(data))
-	result := cut(txt)
-	// log.Println(len(result))
 
-	for _, v := range result {
-		log.Println(v)
-		log.Println("--------------------")
+	result := cut(txt)
+
+	dataSet := make([][]byte, len(data))
+
+	toAPI(result, dataSet)
+
+	b := make([]byte, 0)
+
+	for _, d := range dataSet {
+		b = append(b[:], d[:]...)
 	}
 
+	write(b, filename)
 }
 
 func cut(txt string) []string {
@@ -32,10 +38,8 @@ func cut(txt string) []string {
 	b := new(strings.Builder)
 
 	for _, v := range s {
-		// log.Println(v)
 		b.WriteString(v + " ")
-		// log.Println(b.Len())
-		if b.Len() > 4900 {
+		if b.Len() > fileLimit {
 			result = append(result, b.String())
 			b.Reset()
 		}
@@ -45,7 +49,19 @@ func cut(txt string) []string {
 	return result
 }
 
-func merge(data []byte, filename string) {
+func toAPI(data []string, dataSet [][]byte) {
+
+	for index, s := range data {
+
+		c := make(chan []byte, 1)
+
+		go send(s, c)
+
+		dataSet[index] = <-c
+	}
+}
+
+func write(data []byte, filename string) {
 	err := ioutil.WriteFile(filename+".mp3", data, 0644)
 	errHandle(err)
 	fmt.Printf("Audio content written to file: %v\n", filename)

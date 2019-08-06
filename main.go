@@ -3,7 +3,7 @@ package main
 import "log"
 
 func main() {
-	preProcess("./sample.txt")
+	process("./sample.txt", "SPA")
 }
 
 func errHandle(err error) {

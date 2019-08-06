@@ -8,7 +8,7 @@ import (
 	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
-func send(txt string) []byte {
+func send(txt string, b chan []byte) {
 	// Instantiates a client.
 	ctx := context.Background()
 
@@ -42,5 +42,5 @@ func send(txt string) []byte {
 	}
 
 	// The resp's AudioContent is binary.
-	return resp.AudioContent
+	b <- resp.AudioContent
 }

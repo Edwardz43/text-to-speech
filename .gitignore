@@ -3,6 +3,8 @@ key\.json
 
 sample\.txt
 
+*.mp3
+
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
